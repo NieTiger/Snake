@@ -10,6 +10,28 @@
 #include "definitions.h"
 #include "utilities.h"
 
+#define HELP "\nUsage: snake [options]\n\noptions:\n\t\
+-l/--length <number> -- Length of the snake to start with :)\n\t\
+-n/--number_of_items <number> -- Number of items in the game (default 1) \
+\n"
+
+// TODO: Implement starting length and number of items
+
+void draw_snake_logo(pt_t *SCREEN_MAX, square_t *BORDER) {
+    int x_ = SCREEN_MAX->x/2-43/2;
+    
+    move(BORDER->y1-5, x_);
+    printw(" ____  _   _    _    _  _______   _   _   _");
+    move(BORDER->y1-4, x_);
+    printw("/ ___|| \\ | |  / \\  | |/ / ____| | | | | | |");
+    move(BORDER->y1-3, x_);
+    printw("\\___ \\|  \\| | / _ \\ | ' /|  _|   | | | | | |");
+    move(BORDER->y1-2, x_);
+    printw(" ___) | |\\  |/ ___ \\| . \\| |___  |_| |_| |_|");
+    move(BORDER->y1-1, x_);
+    printw("|____/|_| \\_/_/   \\_\\_|\\_\\_____| (_) (_) (_)");
+
+}
 
 int main(int argc, char** argv) {
 
@@ -21,7 +43,7 @@ int main(int argc, char** argv) {
         // help
         if (strcmp(argv[i], "-h") == 0 ||
                 strcmp(argv[i], "--help") == 0) {
-            printf("Hello!\n");
+            printf(HELP);
             return EXIT_SUCCESS;
         }
     }
@@ -32,12 +54,6 @@ int main(int argc, char** argv) {
     noecho();       // don't display keypresses
     refresh();      // refresh the screen to empt
     keypad(stdscr, TRUE); // init keypad (arrow keys and more)
-
-    /* init screen dimensions */
-    pt_t SCREEN_MAX;
-    square_t BORDER;
-    BORDER.x1 = 0;
-    BORDER.y1 = 5;
 
     /* init game state */
     game_t game_state;
@@ -62,16 +78,24 @@ int main(int argc, char** argv) {
     init_pair(BORDER_COLOUR, COLOR_WHITE, COLOR_WHITE);
     init_pair(SNAKE_COLOUR_HEAD, COLOR_BLACK, COLOR_GREEN);
 
+    /* init screen dimensions */
+    pt_t SCREEN_MAX;
     /* store the max y and x coordinates */
     getmaxyx(stdscr, SCREEN_MAX.y, SCREEN_MAX.x);
+
+    /* init border dimensions */
+    square_t BORDER;
+    BORDER.x1 = (SCREEN_MAX.x/2) - GAME_MAX_DIM/2;
+    BORDER.x2 = (SCREEN_MAX.x/2) + GAME_MAX_DIM/2;
+
+    BORDER.y1 = 5;
+    BORDER.y2 = (SCREEN_MAX.y - 5) < GAME_MAX_DIM ? (SCREEN_MAX.y-5) : GAME_MAX_DIM;
+
     
     // init ball
     pt_t ball;
     ball.x = -1; ball.y = -1;
     ball.flag = 1;
-
-    BORDER.x2 = (SCREEN_MAX.x - 1) < GAME_MAX_DIM ? (SCREEN_MAX.x-1) : GAME_MAX_DIM;
-    BORDER.y2 = (SCREEN_MAX.y - 5) < GAME_MAX_DIM ? (SCREEN_MAX.y-5) : GAME_MAX_DIM;
 
     // init snake
     snake_t snake;
@@ -93,9 +117,9 @@ int main(int argc, char** argv) {
         timeout(game_state.pause);
 
         /* store the max y and x coordinates */
-        getmaxyx(stdscr, SCREEN_MAX.y, SCREEN_MAX.x);
-        BORDER.x2 = (SCREEN_MAX.x - 1) < GAME_MAX_DIM ? (SCREEN_MAX.x-1) : GAME_MAX_DIM;
-        BORDER.y2 = (SCREEN_MAX.y - 5) < GAME_MAX_DIM ? (SCREEN_MAX.y-5) : GAME_MAX_DIM;
+        /*getmaxyx(stdscr, SCREEN_MAX.y, SCREEN_MAX.x);*/
+        /*BORDER.x2 = (SCREEN_MAX.x - 1) < GAME_MAX_DIM ? (SCREEN_MAX.x-1) : GAME_MAX_DIM;*/
+        /*BORDER.y2 = (SCREEN_MAX.y - 5) < GAME_MAX_DIM ? (SCREEN_MAX.y-5) : GAME_MAX_DIM;*/
 
         // Check for game over conditions
         detect_collision(&game_state, &BORDER, &snake, &ball);
@@ -106,6 +130,7 @@ int main(int argc, char** argv) {
             timeout(-1);
         } else {
             /* draw! */
+            draw_snake_logo(&SCREEN_MAX, &BORDER);
             draw_border(&BORDER);
             draw_ball(&BORDER, &ball);
             draw_snake(&snake);

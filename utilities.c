@@ -90,12 +90,12 @@ void detect_collision(game_t *game_state, square_t *BORDER, snake_t *snake, pt_t
 
 void draw_score(game_t *game_state, square_t *BORDER) {
     // Print ball, snake
-    mvaddch(BORDER->y2+1, 1, ACS_DIAMOND);
-    move(BORDER->y2+1, 3);
+    mvaddch(BORDER->y2+1, BORDER->x1+1, ACS_DIAMOND);
+    move(BORDER->y2+1, BORDER->x1+3);
     printw("SNAKE!");
     // Print score
-    move(BORDER->y2+1, BORDER->x2/2-2);
-    printw("Current score: %d", game_state->score);
+    move(BORDER->y2+1, BORDER->x2-17);
+    printw("Current score: %2d", game_state->score);
 }
 
 void game_over() {

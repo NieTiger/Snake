@@ -4,7 +4,7 @@
 // macro definitions
 #define START_LEN 5
 #define INIT_PAUSE 500
-#define GAME_MAX_DIM 30
+#define GAME_MAX_DIM 43
 
 #define SNAKE_COLOUR 11
 #define BORDER_COLOUR 12
