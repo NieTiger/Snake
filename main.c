@@ -58,8 +58,9 @@ int main(int argc, char** argv) {
     init_pair(CYAN, COLOR_CYAN, COLOR_BLACK);
     init_pair(WHITE, COLOR_WHITE, COLOR_BLACK);
 
-    init_pair(SNAKE_COLOUR, COLOR_WHITE, COLOR_MAGENTA);
+    init_pair(SNAKE_COLOUR, COLOR_BLACK, COLOR_MAGENTA);
     init_pair(BORDER_COLOUR, COLOR_WHITE, COLOR_WHITE);
+    init_pair(SNAKE_COLOUR_HEAD, COLOR_BLACK, COLOR_GREEN);
 
     /* store the max y and x coordinates */
     getmaxyx(stdscr, SCREEN_MAX.y, SCREEN_MAX.x);
@@ -87,6 +88,9 @@ int main(int argc, char** argv) {
     while(true) {
         /* overwrite all chars on the screen with blanks */
         erase();
+        
+        // reset timeout
+        timeout(game_state.pause);
 
         /* store the max y and x coordinates */
         getmaxyx(stdscr, SCREEN_MAX.y, SCREEN_MAX.x);
@@ -120,19 +124,19 @@ int main(int argc, char** argv) {
             switch (c) {
                 case 'w':
                 case KEY_UP:
-                    snake.dir = UP;
+                    if (snake.dir != DOWN) snake.dir = UP;
                     break;
                 case 's':
                 case KEY_DOWN:
-                    snake.dir = DOWN;
+                    if (snake.dir != UP) snake.dir = DOWN;
                     break;
                 case 'a':
                 case KEY_LEFT:
-                    snake.dir = LEFT;
+                    if (snake.dir != RIGHT) snake.dir = LEFT;
                     break;
                 case 'd':
                 case KEY_RIGHT:
-                    snake.dir = RIGHT;
+                    if (snake.dir != LEFT) snake.dir = RIGHT;
                     break;
             }
         }

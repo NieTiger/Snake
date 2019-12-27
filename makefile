@@ -1,4 +1,5 @@
 TARGET=snake
+
 CC=gcc
 CFLAGS+=-Wall -Werror
 SRCS := $(wildcard *.c)

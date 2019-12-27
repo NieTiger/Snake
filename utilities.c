@@ -21,7 +21,7 @@ void draw_border(square_t *BORDER) {
 void draw_snake(snake_t* snake) {
     attron(COLOR_PAIR(SNAKE_COLOUR));
     for (int i=snake->len-2; i>=0; --i) {
-        mvprintw(snake->arr[i].y, snake->arr[i].x, "#");
+        mvprintw(snake->arr[i].y, snake->arr[i].x, " ");
         snake->arr[i+1].y = snake->arr[i].y;
         snake->arr[i+1].x = snake->arr[i].x;
     }
@@ -40,15 +40,17 @@ void draw_snake(snake_t* snake) {
             ++(snake->arr[0].x);
             break;
     }
-    mvprintw(snake->arr[0].y, snake->arr[0].x, "#");
     attroff(COLOR_PAIR(SNAKE_COLOUR));
+    attron(COLOR_PAIR(SNAKE_COLOUR_HEAD));
+    mvaddch(snake->arr[0].y, snake->arr[0].x, ACS_BULLET);
+    attroff(COLOR_PAIR(SNAKE_COLOUR_HEAD));
 }
 
 void draw_ball(square_t *BORDER, pt_t *ball) {
     if (ball->flag) { // set flag will calculate a new random position for the ball
         ball->flag = 0;
-        ball->x = BORDER->x1 + rand() % (BORDER->x2 - BORDER->x1);
-        ball->y = BORDER->y1 + rand() % (BORDER->y2 - BORDER->y1);
+        ball->x = BORDER->x1 + 1 + rand() % (BORDER->x2 - 1 - BORDER->x1);
+        ball->y = BORDER->y1 + 1 + rand() % (BORDER->y2 - 1 - BORDER->y1);
     }
     /*mvprintw(ball->y, ball->x, "O");*/
     mvaddch(ball->y, ball->x, ACS_DIAMOND);
@@ -59,12 +61,14 @@ void detect_collision(game_t *game_state, square_t *BORDER, snake_t *snake, pt_t
     int* snake_x = &(snake->arr[0].x);
     int* snake_y = &(snake->arr[0].y);
     
-    // Check for ball collision -- increment score
+    // Check for ball collision -- increment score and speed
     if (ball->x == *snake_x &&
             ball->y == *snake_y) {
         ball->flag = 1; // Generate new ball
         ++(snake->len); // increment snake length
         ++game_state->score; // increment score
+        game_state->pause -= 10*(game_state->score / 5);
+    // increment
     }
 
     // Check for border collision -- game over
@@ -85,10 +89,12 @@ void detect_collision(game_t *game_state, square_t *BORDER, snake_t *snake, pt_t
 }
 
 void draw_score(game_t *game_state, square_t *BORDER) {
+    // Print ball, snake
     mvaddch(BORDER->y2+1, 1, ACS_DIAMOND);
-    move(BORDER->y2+1, 5);
+    move(BORDER->y2+1, 3);
     printw("SNAKE!");
-    move(BORDER->y2+1, BORDER->x2/2);
+    // Print score
+    move(BORDER->y2+1, BORDER->x2/2-2);
     printw("Current score: %d", game_state->score);
 }
 
