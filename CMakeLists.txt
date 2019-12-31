@@ -6,8 +6,10 @@ set(CMAKE_C_STANDARD 11)
 include_directories(.)
 
 add_executable(snake
-        definitions.h
         main.c
+        definitions.h
+        types.h
+        types.c
         utilities.c
         utilities.h)
 

@@ -1,107 +1,150 @@
 
 #include <stdlib.h>
 #include <ncurses.h>
+#include "types.h"
 #include "utilities.h"
 #include "definitions.h"
-
 
 /*
  * draw something
  */
-void draw_border(square_t *BORDER) {
+void draw_border(game_t* gs) {
     attron(COLOR_PAIR(BORDER_COLOUR));
-    rectangle(BORDER->y1, BORDER->x1,
-              BORDER->y2, BORDER->x2);
+    rectangle(gs->border.y1, gs->border.x1,
+              gs->border.y2, gs->border.x2);
     attroff(COLOR_PAIR(BORDER_COLOUR));
 }
 
 /*
  * draw the snake
  */
-void draw_snake(snake_t* snake) {
+void draw_snake(game_t* gs) {
     attron(COLOR_PAIR(SNAKE_COLOUR));
-    for (int i=snake->len-2; i>=0; --i) {
-        mvprintw(snake->arr[i].y, snake->arr[i].x, " ");
-        snake->arr[i+1].y = snake->arr[i].y;
-        snake->arr[i+1].x = snake->arr[i].x;
+    for (int i=gs->snake.len-2; i>=0; --i) {
+        mvprintw(gs->snake.arr[i].y, gs->snake.arr[i].x, " ");
+        gs->snake.arr[i+1].y = gs->snake.arr[i].y;
+        gs->snake.arr[i+1].x = gs->snake.arr[i].x;
     }
 
-    switch (snake->dir) {
+    switch (gs->snake.dir) {
         case UP:
-            --(snake->arr[0].y);
+            --(gs->snake.arr[0].y);
             break;
         case DOWN:
-            ++(snake->arr[0].y);
+            ++(gs->snake.arr[0].y);
             break;
         case LEFT:
-            --(snake->arr[0].x);
+            --(gs->snake.arr[0].x);
             break;
         case RIGHT:
-            ++(snake->arr[0].x);
+            ++(gs->snake.arr[0].x);
             break;
     }
     attroff(COLOR_PAIR(SNAKE_COLOUR));
     attron(COLOR_PAIR(SNAKE_COLOUR_HEAD));
-    mvaddch(snake->arr[0].y, snake->arr[0].x, ACS_BULLET);
+    mvaddch(gs->snake.arr[0].y, gs->snake.arr[0].x, ACS_BULLET);
     attroff(COLOR_PAIR(SNAKE_COLOUR_HEAD));
 }
 
-void draw_ball(square_t *BORDER, pt_t *ball) {
-    if (ball->flag) { // set flag will calculate a new random position for the ball
-        ball->flag = 0;
-        ball->x = BORDER->x1 + 1 + rand() % (BORDER->x2 - 1 - BORDER->x1);
-        ball->y = BORDER->y1 + 1 + rand() % (BORDER->y2 - 1 - BORDER->y1);
+void draw_ball(game_t* gs) {
+    if (gs->ball.flag) { // set flag will calculate a new random position for the ball
+        gs->ball.flag = 0;
+        gs->ball.x = gs->border.x1 + 1 + rand() % (gs->border.x2 - 1 - gs->border.x1);
+        gs->ball.y = gs->border.y1 + 1 + rand() % (gs->border.y2 - 1 - gs->border.y1);
     }
-    /*mvprintw(ball->y, ball->x, "O");*/
-    mvaddch(ball->y, ball->x, ACS_DIAMOND);
+    /*mvprintw(gs->ball.y, gs->ball.x, "O");*/
+    mvaddch(gs->ball.y, gs->ball.x, ACS_DIAMOND);
 }
 
-void detect_collision(game_t *game_state, square_t *BORDER, snake_t *snake, pt_t *ball) {
+void detect_collision(game_t *gs) {
     // Get current snake head
-    int* snake_x = &(snake->arr[0].x);
-    int* snake_y = &(snake->arr[0].y);
+    int* snake_x = &(gs->snake.arr[0].x);
+    int* snake_y = &(gs->snake.arr[0].y);
     
     // Check for ball collision -- increment score and speed
-    if (ball->x == *snake_x &&
-            ball->y == *snake_y) {
-        ball->flag = 1; // Generate new ball
-        ++(snake->len); // increment snake length
-        ++game_state->score; // increment score
-        game_state->pause -= 10*(game_state->score / 5);
+    if (gs->ball.x == *snake_x &&
+            gs->ball.y == *snake_y) {
+        gs->ball.flag = 1; // Generate new ball
+        ++(gs->snake.len); // increment snake length
+        ++gs->score; // increment score
+        gs->pause -= 10*(gs->score / 5);
     // increment
     }
 
     // Check for border collision -- game over
-    if (*snake_x <= BORDER->x1 || *snake_x >= BORDER->x2 ||
-            *snake_y <= BORDER->y1 || *snake_y >= BORDER->y2) {
-        game_state->over = true;
+    if (*snake_x <= gs->border.x1 || *snake_x >= gs->border.x2 ||
+            *snake_y <= gs->border.y1 || *snake_y >= gs->border.y2) {
+        gs->over = true;
         return;
     }
 
     // Check for self collision -- game over
-    for (int i=1; i<snake->len; ++i) {
-        if (snake->arr[i].x == *snake_x && snake->arr[i].y == *snake_y) {
-            game_state->over = true;
+    for (int i=1; i<gs->snake.len; ++i) {
+        if (gs->snake.arr[i].x == *snake_x && gs->snake.arr[i].y == *snake_y) {
+            gs->over = true;
             return;
         }
     }
 
 }
 
-void draw_score(game_t *game_state, square_t *BORDER) {
+void draw_score(game_t *gs) {
     // Print ball, snake
-    mvaddch(BORDER->y2+1, BORDER->x1+1, ACS_DIAMOND);
-    move(BORDER->y2+1, BORDER->x1+3);
+    mvaddch(gs->border.y2+1, gs->border.x1+1, ACS_DIAMOND);
+    move(gs->border.y2+1, gs->border.x1+3);
     printw("SNAKE!");
+
     // Print score
-    move(BORDER->y2+1, BORDER->x2-17);
-    printw("Current score: %2d", game_state->score);
+    move(gs->border.y2+1, gs->border.x2-17);
+    printw("Current score: %2d", gs->score);
+
+    // Print instructions
+    move(gs->border.y2+2, gs->border.x1+1);
+    printw("W: up | S: Down | A: Left | D: Right");
+    move(gs->border.y2+3, gs->border.x1+1);
+    printw("R: restart");
+    
 }
 
-void game_over() {
+void game_over(pt_t *SCREEN_MAX) {
     // print end message
-    printw("Game over!");
+    int x_begin = SCREEN_MAX->x/2 - 53/2 - 1;
+    move(1, x_begin);
+    printw("  ____    _    __  __ _____    _____     _______ ____");
+    move(2, x_begin);
+    printw(" / ___|  / \\  |  \\/  | ____|  / _ \\ \\   / / ____|  _ \\");
+    move(3, x_begin);
+    printw("| |  _  / _ \\ | |\\/| |  _|   | | | \\ \\ / /|  _| | |_) |");
+    move(4, x_begin);
+    printw("| |_| |/ ___ \\| |  | | |___  | |_| |\\ V / | |___|  _ <");
+    move(5, x_begin);
+    printw(" \\____/_/   \\_\\_|  |_|_____|  \\___/  \\_/  |_____|_| \\_\\");
+
+    move(7, x_begin);
+    printw("Press q to quit. ");
+    move(8, x_begin);
+    printw("Press r to restart. ");
+    move(10, x_begin);
+    printw("Better luck next time!");
+
 }
+
+void draw_snake_logo(game_t* gs, pt_t *SCREEN_MAX) {
+    int x_ = SCREEN_MAX->x/2-43/2;
+    
+    move(gs->border.y1-5, x_);
+    printw(" ____  _   _    _    _  _______   _   _   _");
+    move(gs->border.y1-4, x_);
+    printw("/ ___|| \\ | |  / \\  | |/ / ____| | | | | | |");
+    move(gs->border.y1-3, x_);
+    printw("\\___ \\|  \\| | / _ \\ | ' /|  _|   | | | | | |");
+    move(gs->border.y1-2, x_);
+    printw(" ___) | |\\  |/ ___ \\| . \\| |___  |_| |_| |_|");
+    move(gs->border.y1-1, x_);
+    printw("|____/|_| \\_/_/   \\_\\_|\\_\\_____| (_) (_) (_)");
+
+}
+
 
 void rectangle(int y1, int x1, int y2, int x2)
 {

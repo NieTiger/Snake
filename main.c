@@ -8,43 +8,39 @@
 #include <string.h>
 
 #include "definitions.h"
+#include "types.h"
 #include "utilities.h"
 
-#define HELP "\nUsage: snake [options]\n\noptions:\n\t\
--l/--length <number> -- Length of the snake to start with :)\n\t\
--n/--number_of_items <number> -- Number of items in the game (default 1) \
-\n"
+#define HELP "Classic Snake Game\nUsage: snake [options]\n\
+  -l, --length <number>   Length of the snake to start with :)\n\
+"
 
 // TODO: Implement starting length and number of items
 
-void draw_snake_logo(pt_t *SCREEN_MAX, square_t *BORDER) {
-    int x_ = SCREEN_MAX->x/2-43/2;
-    
-    move(BORDER->y1-5, x_);
-    printw(" ____  _   _    _    _  _______   _   _   _");
-    move(BORDER->y1-4, x_);
-    printw("/ ___|| \\ | |  / \\  | |/ / ____| | | | | | |");
-    move(BORDER->y1-3, x_);
-    printw("\\___ \\|  \\| | / _ \\ | ' /|  _|   | | | | | |");
-    move(BORDER->y1-2, x_);
-    printw(" ___) | |\\  |/ ___ \\| . \\| |___  |_| |_| |_|");
-    move(BORDER->y1-1, x_);
-    printw("|____/|_| \\_/_/   \\_\\_|\\_\\_____| (_) (_) (_)");
-
-}
 
 int main(int argc, char** argv) {
 
     /* init var */
-    int c; // stores user input
+    int c = 0; // stores user input
+    int _start_len = START_LEN;
     
     /* input parsing */
     for (int i=1; i<argc; ++i) {
         // help
         if (strcmp(argv[i], "-h") == 0 ||
-                strcmp(argv[i], "--help") == 0) {
+            strcmp(argv[i], "--help") == 0) {
             printf(HELP);
             return EXIT_SUCCESS;
+        } else if (strcmp(argv[i], "-l") == 0 ||
+                   strcmp(argv[i], "--length") == 0) {
+            _start_len = atoi(argv[++i]);
+            if (_start_len == 0) {
+                printf("Invalid input: length must be an integer.");
+                return EXIT_SUCCESS;
+            }
+            if (_start_len > 20) {
+                printf("Invalid input: length cannot exceed 20.");
+            }
         }
     }
 
@@ -55,86 +51,47 @@ int main(int argc, char** argv) {
     refresh();      // refresh the screen to empt
     keypad(stdscr, TRUE); // init keypad (arrow keys and more)
 
-    /* init game state */
-    game_t game_state;
-    game_state.over = false;
-    game_state.level = 1;
-    game_state.pause = INIT_PAUSE;
-    game_state.score = 0;
-
-    /* set getch timeout */
-    timeout(game_state.pause);
-
-    /* set colour pairs to number defined above */
-    init_pair(RED, COLOR_RED, COLOR_BLACK);
-    init_pair(GREEN, COLOR_GREEN, COLOR_BLACK);
-    init_pair(YELLOW, COLOR_YELLOW, COLOR_BLACK);
-    init_pair(BLUE, COLOR_BLUE, COLOR_BLACK);
-    init_pair(MAGENTA, COLOR_MAGENTA, COLOR_BLACK);
-    init_pair(CYAN, COLOR_CYAN, COLOR_BLACK);
-    init_pair(WHITE, COLOR_WHITE, COLOR_BLACK);
-
-    init_pair(SNAKE_COLOUR, COLOR_BLACK, COLOR_MAGENTA);
-    init_pair(BORDER_COLOUR, COLOR_WHITE, COLOR_WHITE);
-    init_pair(SNAKE_COLOUR_HEAD, COLOR_BLACK, COLOR_GREEN);
-
-    /* init screen dimensions */
-    pt_t SCREEN_MAX;
-    /* store the max y and x coordinates */
-    getmaxyx(stdscr, SCREEN_MAX.y, SCREEN_MAX.x);
-
-    /* init border dimensions */
-    square_t BORDER;
-    BORDER.x1 = (SCREEN_MAX.x/2) - GAME_MAX_DIM/2;
-    BORDER.x2 = (SCREEN_MAX.x/2) + GAME_MAX_DIM/2;
-
-    BORDER.y1 = 5;
-    BORDER.y2 = (SCREEN_MAX.y - 5) < GAME_MAX_DIM ? (SCREEN_MAX.y-5) : GAME_MAX_DIM;
-
+    /* init colour pairs */
+    initialise_colour_pairs();
     
-    // init ball
-    pt_t ball;
-    ball.x = -1; ball.y = -1;
-    ball.flag = 1;
+    /* declare game objects */
+    game_t game_state;
+    pt_t SCREEN_MAX;
 
-    // init snake
-    snake_t snake;
-    snake.dir = RIGHT;
-    snake.len = START_LEN;
-    for (int i=0; i<snake.len; ++i) {
-        snake.arr[i].x = BORDER.x2/2 - i;
-        snake.arr[i].y = BORDER.y2/2;
-    }
+    /* reset/construct game */
+    getmaxyx(stdscr, SCREEN_MAX.y, SCREEN_MAX.x);
+    update_border(&game_state, &SCREEN_MAX);
+    init_game(&game_state, _start_len);
 
     /*
      * main loop
+     *
+     * ESC and q will exit the game
      */
-    while(true) {
+    while(c != 'q' && c != 27) {
         /* overwrite all chars on the screen with blanks */
         erase();
         
-        // reset timeout
+        // set timeout
         timeout(game_state.pause);
 
         /* store the max y and x coordinates */
-        /*getmaxyx(stdscr, SCREEN_MAX.y, SCREEN_MAX.x);*/
-        /*BORDER.x2 = (SCREEN_MAX.x - 1) < GAME_MAX_DIM ? (SCREEN_MAX.x-1) : GAME_MAX_DIM;*/
-        /*BORDER.y2 = (SCREEN_MAX.y - 5) < GAME_MAX_DIM ? (SCREEN_MAX.y-5) : GAME_MAX_DIM;*/
+        getmaxyx(stdscr, SCREEN_MAX.y, SCREEN_MAX.x);
+        update_border(&game_state, &SCREEN_MAX);
 
         // Check for game over conditions
-        detect_collision(&game_state, &BORDER, &snake, &ball);
+        detect_collision(&game_state);
 
         // if game is over, draw over screen
         if (game_state.over) {
-            game_over();
-            timeout(-1);
+            game_over(&SCREEN_MAX);
         } else {
             /* draw! */
-            draw_snake_logo(&SCREEN_MAX, &BORDER);
-            draw_border(&BORDER);
-            draw_ball(&BORDER, &ball);
-            draw_snake(&snake);
-            draw_score(&game_state, &BORDER);
+            draw_snake_logo(&game_state, &SCREEN_MAX);
+            draw_border(&game_state);
+            draw_ball(&game_state);
+            draw_snake(&game_state);
+            draw_score(&game_state);
         }
         /*printf("broke after this!\n");*/
         /*return 0;*/
@@ -145,32 +102,32 @@ int main(int argc, char** argv) {
 
         /* Get used input */
         c = getch();
-        if (!game_state.over) {
-            switch (c) {
-                case 'w':
-                case KEY_UP:
-                    if (snake.dir != DOWN) snake.dir = UP;
-                    break;
-                case 's':
-                case KEY_DOWN:
-                    if (snake.dir != UP) snake.dir = DOWN;
-                    break;
-                case 'a':
-                case KEY_LEFT:
-                    if (snake.dir != RIGHT) snake.dir = LEFT;
-                    break;
-                case 'd':
-                case KEY_RIGHT:
-                    if (snake.dir != LEFT) snake.dir = RIGHT;
-                    break;
-            }
-        }
-
-        /*
-         * ESC and q will exit the game
-         */
-        if (c == 'q' || c == 27) {
-            break;
+        switch (c) {
+            case 'w':
+            case KEY_UP:
+                if (game_state.snake.dir != DOWN) game_state.snake.dir = UP;
+                break;
+            case 's':
+            case KEY_DOWN:
+                if (game_state.snake.dir != UP) game_state.snake.dir = DOWN;
+                break;
+            case 'a':
+            case KEY_LEFT:
+                if (game_state.snake.dir != RIGHT) game_state.snake.dir = LEFT;
+                break;
+            case 'd':
+            case KEY_RIGHT:
+                if (game_state.snake.dir != LEFT) game_state.snake.dir = RIGHT;
+                break;
+            case 'r':
+                // Restart
+                /* reset/construct game */
+                getmaxyx(stdscr, SCREEN_MAX.y, SCREEN_MAX.x);
+                update_border(&game_state, &SCREEN_MAX);
+                init_game(&game_state, _start_len);
+                break;
+            default:
+                break;
         }
     }
 

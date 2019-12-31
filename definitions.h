@@ -20,33 +20,4 @@
 
 #define MAX_LENGTH 100
 
-typedef enum {
-    LEFT,
-    RIGHT,
-    UP,
-    DOWN
-} dirs_t;
-
-typedef struct {
-    int y, x;
-    int flag;
-} pt_t;
-
-typedef struct {
-    int len;
-    dirs_t dir;
-    pt_t arr[MAX_LENGTH];
-} snake_t;
-
-typedef struct {
-    int over;
-    int level;
-    int pause;
-    int score;
-} game_t;
-
-typedef struct {
-    int x1, x2, y1, y2;
-} square_t;
-
-#endif // __DEFINITIONS_H__
+#endif //__DEFINITIONS_H__
