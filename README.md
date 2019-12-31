@@ -1,6 +1,6 @@
 # Classic Snake Game in the Terminal!
 
-Feeling bored in your headless linux machine? Give Snake a shot! Have a wonderful day!
+Take a break from coding and play the classic snake game! Have a wonderful day and good luck in all your endeavors!
 
 ## Dependencies
 
@@ -8,7 +8,11 @@ Latest version of libcurse.
 
 ## Compiling
 
-Use the Makefile.
+Using the Makefile:
+
+```bash
+make
+```
 
 ## Usage
 
@@ -18,6 +22,7 @@ snake [options]
 
 #### options:
 ```
--h --help   Display help message
+-h, --help              Display help message
+-l, --length <number>   Length of the snake to start with :)
 
 ```
