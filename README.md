@@ -6,6 +6,10 @@ Take a break from coding and play the classic snake game! Have a wonderful day a
 
 Latest version of libcurse.
 
+Ubuntu:
+
+`libncurses5-dev`
+
 ## Compiling
 
 Using the Makefile:
