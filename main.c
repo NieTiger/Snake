@@ -15,31 +15,36 @@
   -l, --length <number>   Length of the snake to start with :)\n\
 "
 
-// TODO: Implement starting length and number of items
-
-
 int main(int argc, char** argv) {
 
     /* init var */
     int c = 0; // stores user input
     int _start_len = START_LEN;
-    
+
     /* input parsing */
     for (int i=1; i<argc; ++i) {
-        // help
         if (strcmp(argv[i], "-h") == 0 ||
+            // help
             strcmp(argv[i], "--help") == 0) {
             printf(HELP);
             return EXIT_SUCCESS;
+
         } else if (strcmp(argv[i], "-l") == 0 ||
                    strcmp(argv[i], "--length") == 0) {
-            _start_len = atoi(argv[++i]);
+            // modify starting snake length
+
+            if (++i >= argc) {
+                printf("Invalid input: -l, --length, missing length argument.\n");
+                return EXIT_SUCCESS;
+            }
+            _start_len = atoi(argv[i]);
             if (_start_len == 0) {
-                printf("Invalid input: length must be an integer.");
+                printf("Invalid input: length must be an integer.\n");
                 return EXIT_SUCCESS;
             }
             if (_start_len > 20) {
-                printf("Invalid input: length cannot exceed 20.");
+                printf("Invalid input: length cannot exceed 20.\n");
+                return EXIT_SUCCESS;
             }
         }
     }
@@ -53,7 +58,7 @@ int main(int argc, char** argv) {
 
     /* init colour pairs */
     initialise_colour_pairs();
-    
+
     /* declare game objects */
     game_t game_state;
     pt_t SCREEN_MAX;
@@ -71,7 +76,7 @@ int main(int argc, char** argv) {
     while(c != 'q' && c != 27) {
         /* overwrite all chars on the screen with blanks */
         erase();
-        
+
         // set timeout
         timeout(game_state.pause);
 
@@ -135,5 +140,3 @@ int main(int argc, char** argv) {
     endwin();
     return EXIT_SUCCESS;
 }
-
-
