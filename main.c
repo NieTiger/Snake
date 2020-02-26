@@ -3,6 +3,7 @@
  * @github: http://github.com/haolinnie
  */
 #include <stdlib.h>
+#include <time.h>
 #include <stdio.h>
 #include <ncurses.h>
 #include <string.h>
@@ -21,6 +22,10 @@ typedef enum {
 } BOT_FLAG;
 
 int main(int argc, char** argv) {
+
+    // seed random number generator
+    time_t t;
+    srand((unsigned) time(&t));
 
     /* init var */
     int c = 0; // stores user input
@@ -57,6 +62,7 @@ int main(int argc, char** argv) {
                    strcmp(argv[i], "--bot") == 0) {
             // Using a bot to run :)
             bot_flag = BOT;
+            _game_pause = 100;
         }
     }
 
