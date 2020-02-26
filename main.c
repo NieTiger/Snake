@@ -137,18 +137,22 @@ int main(int argc, char** argv) {
         switch (_control) {
             case 'w':
             case KEY_UP:
+            case UP:
                 if (game_state.snake.dir != DOWN) game_state.snake.dir = UP;
                 break;
             case 's':
             case KEY_DOWN:
+            case DOWN:
                 if (game_state.snake.dir != UP) game_state.snake.dir = DOWN;
                 break;
             case 'a':
             case KEY_LEFT:
+            case LEFT:
                 if (game_state.snake.dir != RIGHT) game_state.snake.dir = LEFT;
                 break;
             case 'd':
             case KEY_RIGHT:
+            case RIGHT:
                 if (game_state.snake.dir != LEFT) game_state.snake.dir = RIGHT;
                 break;
             case 'r':
