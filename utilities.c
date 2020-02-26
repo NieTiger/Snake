@@ -56,11 +56,20 @@ void draw_ball(game_t* gs) {
     mvaddch(gs->ball.y, gs->ball.x, ACS_DIAMOND);
 }
 
+int detect_self_collision(snake_t* snake, int x, int y) {
+    for (int i=1; i<snake->len; ++i) {
+        if (snake->arr[i].x == x && snake->arr[i].y == y) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void detect_collision(game_t *gs) {
     // Get current snake head
     int* snake_x = &(gs->snake.arr[0].x);
     int* snake_y = &(gs->snake.arr[0].y);
-    
+
     // Check for ball collision -- increment score and speed
     if (gs->ball.x == *snake_x &&
             gs->ball.y == *snake_y) {
@@ -79,13 +88,9 @@ void detect_collision(game_t *gs) {
     }
 
     // Check for self collision -- game over
-    for (int i=1; i<gs->snake.len; ++i) {
-        if (gs->snake.arr[i].x == *snake_x && gs->snake.arr[i].y == *snake_y) {
-            gs->over = true;
-            return;
-        }
+    if (detect_self_collision(&(gs->snake), *snake_x, *snake_y)) {
+        gs->over = true;
     }
-
 }
 
 void draw_score(game_t *gs) {
@@ -103,7 +108,7 @@ void draw_score(game_t *gs) {
     printw("W: up | S: Down | A: Left | D: Right");
     move(gs->border.y2+3, gs->border.x1+1);
     printw("R: restart");
-    
+
 }
 
 void game_over(pt_t *SCREEN_MAX) {
@@ -131,7 +136,7 @@ void game_over(pt_t *SCREEN_MAX) {
 
 void draw_snake_logo(game_t* gs, pt_t *SCREEN_MAX) {
     int x_ = SCREEN_MAX->x/2-43/2;
-    
+
     move(gs->border.y1-5, x_);
     printw(" ____  _   _    _    _  _______   _   _   _");
     move(gs->border.y1-4, x_);
