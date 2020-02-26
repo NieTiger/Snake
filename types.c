@@ -3,11 +3,11 @@
 #include "definitions.h"
 
 
-void init_game(game_t *game_state, int start_len) {
+void init_game(game_t *game_state, int start_len, int game_pause) {
     /* game state constructor */
     game_state->over = false;
     game_state->level = 1;
-    game_state->pause = INIT_PAUSE;
+    game_state->pause = game_pause;
     game_state->score = 0;
 
     /* snake constructor */
@@ -17,7 +17,7 @@ void init_game(game_t *game_state, int start_len) {
         game_state->snake.arr[i].x = (game_state->border.x2+game_state->border.x1)/2 - i;
         game_state->snake.arr[i].y = (game_state->border.y2+game_state->border.y1)/2;
     }
-    
+
     // init ball
     game_state->ball.x = -1; game_state->ball.y = -1;
     game_state->ball.flag = 1;

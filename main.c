@@ -10,16 +10,23 @@
 #include "definitions.h"
 #include "types.h"
 #include "utilities.h"
+#include "bot.h"
 
 #define HELP "Classic Snake Game\nUsage: snake [options]\n\
   -l, --length <number>   Length of the snake to start with :)\n\
 "
+
+typedef enum {
+    NO_BOT, BOT
+} BOT_FLAG;
 
 int main(int argc, char** argv) {
 
     /* init var */
     int c = 0; // stores user input
     int _start_len = START_LEN;
+    int _game_pause = INIT_PAUSE;
+    BOT_FLAG bot_flag = NO_BOT;
 
     /* input parsing */
     for (int i=1; i<argc; ++i) {
@@ -33,7 +40,7 @@ int main(int argc, char** argv) {
                    strcmp(argv[i], "--length") == 0) {
             // modify starting snake length
 
-            if (++i >= argc) {
+            if (++i >= argc || atoi(argv[i]) == 0) {
                 printf("Invalid input: -l, --length, missing length argument.\n");
                 return EXIT_SUCCESS;
             }
@@ -46,6 +53,10 @@ int main(int argc, char** argv) {
                 printf("Invalid input: length cannot exceed 20.\n");
                 return EXIT_SUCCESS;
             }
+        } else if (strcmp(argv[i], "-b") == 0 ||
+                   strcmp(argv[i], "--bot") == 0) {
+            // Using a bot to run :)
+            bot_flag = BOT;
         }
     }
 
@@ -66,7 +77,7 @@ int main(int argc, char** argv) {
     /* reset/construct game */
     getmaxyx(stdscr, SCREEN_MAX.y, SCREEN_MAX.x);
     update_border(&game_state, &SCREEN_MAX);
-    init_game(&game_state, _start_len);
+    init_game(&game_state, _start_len, _game_pause);
 
     /*
      * main loop
@@ -105,9 +116,19 @@ int main(int argc, char** argv) {
         /* update display */
         refresh();
 
-        /* Get used input */
+        /* Get next move */
         c = getch();
-        switch (c) {
+        int _control = 'w';
+
+        if (bot_flag == NO_BOT) {
+            /* Get used input */
+            _control = c;
+        } else if (bot_flag == BOT) {
+            _control = bot_greedy(&game_state);
+        }
+
+        /* Move snake on screen */
+        switch (_control) {
             case 'w':
             case KEY_UP:
                 if (game_state.snake.dir != DOWN) game_state.snake.dir = UP;
@@ -129,7 +150,7 @@ int main(int argc, char** argv) {
                 /* reset/construct game */
                 getmaxyx(stdscr, SCREEN_MAX.y, SCREEN_MAX.x);
                 update_border(&game_state, &SCREEN_MAX);
-                init_game(&game_state, _start_len);
+                init_game(&game_state, _start_len, _game_pause);
                 break;
             default:
                 break;

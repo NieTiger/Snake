@@ -36,7 +36,7 @@ typedef struct {
     square_t border;
 } game_t;
 
-void init_game(game_t *game_state, int start_len);
+void init_game(game_t *game_state, int start_len, int game_pause);
 void update_border(game_t *game_state, pt_t *SCREEN_MAX);
 void initialise_colour_pairs();
 
