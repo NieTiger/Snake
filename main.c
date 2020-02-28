@@ -21,7 +21,6 @@
 #include "bot.h"
 
 #define HELP "Classic Snake Game\nUsage: snake [options]\n\
-  -b, --bot               Let a bot play snake!\n\
   -l, --length <number>   Length of the snake to start with \n\
   -s, --score             Show current highscore \n\
 "
@@ -85,25 +84,28 @@ int main(int argc, char** argv) {
                    strcmp(argv[i], "--length") == 0) {
             // modify starting snake length
             if (++i >= argc || atoi(argv[i]) == 0) {
-                printf("Invalid input: -l, --length, missing length argument.\n");
+                printf("snake: option %s: requires a parameter between 1 and %d.\n", argv[i-1], GAME_MAX_DIM/2+1);
                 return EXIT_SUCCESS;
             }
             _start_len = atoi(argv[i]);
             if (_start_len > GAME_MAX_DIM/2+1) {
-                printf("Invalid input: length must be between 1 and %d\n", GAME_MAX_DIM/2+1);
+                printf("snake: option %s: parameter must be between 1 and %d.\n", argv[i-1], GAME_MAX_DIM/2+1);
                 sleep(1);
                 _start_len = GAME_MAX_DIM/2+1;
             }
-        } else if (strcmp(argv[i], "-b") == 0 ||
-                   strcmp(argv[i], "--bot") == 0) {
-            // Using a bot to run :)
-            bot_flag = BOT;
-            _game_pause = 100;
+        /*} else if (strcmp(argv[i], "-b") == 0 ||*/
+                   /*strcmp(argv[i], "--bot") == 0) {*/
+            /*// Using a bot to run :)*/
+            /*bot_flag = BOT;*/
+            /*_game_pause = 100;*/
         } else if (strcmp(argv[i], "-s") == 0 ||
                 strcmp(argv[i], "--score") == 0) {
             // Print score
-            printf("The highscore on this machine is %d. Beat that!\n", highscore);
+            printf("snake: The highscore on this machine is %d. Beat that!\n", highscore);
             return EXIT_SUCCESS;
+        } else {
+            printf("snake: Unrecognised option '%s'\n", argv[i]);
+            return EXIT_FAILURE;
         }
     }
 
