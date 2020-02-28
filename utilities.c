@@ -108,16 +108,17 @@ void detect_collision(game_t *gs) {
 }
 
 void draw_score(game_t *gs) {
-    // Print ball, snake
-    /*mvaddch(gs->border.y2+1, gs->border.x1+1, ACS_DIAMOND);*/
-    /*move(gs->border.y2+1, gs->border.x1+3);*/
-    /*printw("SNAKE!");*/
 
     // Print score
     move(gs->border.y2+1, gs->border.x1);
     printw("Score: %1d", gs->score);
-    // Print interval
+
+    // Print length
     move(gs->border.y2+1, gs->border.x1+10);
+    printw("Length: %1d", gs->snake.len);
+
+    // Print speed
+    move(gs->border.y2+1, gs->border.x1+21);
     printw("Speed: %1d ms", gs->pause);
 
     // Print instructions
@@ -125,7 +126,7 @@ void draw_score(game_t *gs) {
     /*printw("W: up | S: Down | A: Left | D: Right");*/
 
     move(gs->border.y2+2, gs->border.x1);
-    printw("R: restart");
+    printw("Press r to restart");
 
 }
 
@@ -147,12 +148,12 @@ void game_over(game_t *gs, pt_t *SCREEN_MAX) {
     printw(" \\____/_/   \\_\\_|  |_|_____|  \\___/  \\_/  |_____|_| \\_\\");
 
     move(y_begin+7, x_begin);
-    printw("Press q to quit. ");
-    move(y_begin+8, x_begin);
-    printw("Press r to restart. ");
-    move(y_begin+10, x_begin);
     printw("Better luck next time!");
 
+    move(y_begin+9, x_begin);
+    printw("Press q to quit. ");
+    move(y_begin+10, x_begin);
+    printw("Press r to restart. ");
 }
 
 void draw_snake_logo(game_t* gs, pt_t *SCREEN_MAX) {

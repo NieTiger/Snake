@@ -18,6 +18,6 @@
 #define CYAN    6
 #define WHITE   7
 
-#define MAX_LENGTH 100
+#define MAX_LENGTH 256
 
 #endif //__DEFINITIONS_H__

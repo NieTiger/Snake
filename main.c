@@ -4,6 +4,9 @@
  */
 #include <stdlib.h>
 #include <time.h>
+
+#include <unistd.h> // Unix only
+
 #include <stdio.h>
 #include <ncurses.h>
 #include <string.h>
@@ -41,19 +44,15 @@ int main(int argc, char** argv) {
         } else if (strcmp(argv[i], "-l") == 0 ||
                    strcmp(argv[i], "--length") == 0) {
             // modify starting snake length
-
             if (++i >= argc || atoi(argv[i]) == 0) {
                 printf("Invalid input: -l, --length, missing length argument.\n");
                 return EXIT_SUCCESS;
             }
             _start_len = atoi(argv[i]);
-            if (_start_len == 0) {
-                printf("Invalid input: length must be an integer.\n");
-                return EXIT_SUCCESS;
-            }
-            if (_start_len > 20) {
-                printf("Invalid input: length cannot exceed 20.\n");
-                return EXIT_SUCCESS;
+            if (_start_len > GAME_MAX_DIM/2+1) {
+                printf("Invalid input: length must be between 1 and %d\n", GAME_MAX_DIM/2+1);
+                sleep(1);
+                _start_len = GAME_MAX_DIM/2+1;
             }
         } else if (strcmp(argv[i], "-b") == 0 ||
                    strcmp(argv[i], "--bot") == 0) {
