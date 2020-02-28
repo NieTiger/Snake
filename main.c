@@ -35,19 +35,21 @@ int get_save_high_score(char* path, int score) {
     FILE* file_ptr = fopen(path, "r");
     if (file_ptr != NULL) {                     // if file does exist
         fgets(buffer, 100, file_ptr);           // read file to buffer
-        sscanf(buffer, "%d", &highscore); // save previous score
+        sscanf(buffer, "%d", &highscore);       // save previous score
         fclose(file_ptr);                       // close file
     }
 
 
     if (score > highscore) {
         /* open file to write */
-        file_ptr = fopen(path, "w");   // open file to write
-        if (file_ptr != NULL) {
-            sprintf(buffer, "%d", score);     // put score in buffer
+        file_ptr = fopen(path, "w");            // open file to write
+        if (file_ptr != NULL) {                 // if file opens successfully
+            sprintf(buffer, "%d", score);       // put score in buffer
             fputs(buffer, file_ptr);            // write buffer to file
             fclose(file_ptr);                   // close file
             highscore = score;
+        } else {
+            highscore = score;                  // if file fails to open, return current score
         }
     }
     return highscore;
