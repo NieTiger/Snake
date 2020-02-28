@@ -1,5 +1,4 @@
 TARGET=snake
-
 CC=gcc
 CFLAGS+=-Wall -Werror
 SRCS := $(wildcard *.c)
@@ -8,6 +7,9 @@ HDRS := $(wildcard *.h)
 LIBS := -lncurses
 
 all: $(TARGET)
+
+debug: CFLAGS += -g
+debug: $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(CC) $^ -o $@ $(LIBS) $(CFLAGS)

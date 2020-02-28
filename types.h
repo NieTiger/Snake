@@ -5,6 +5,10 @@
 
 // Type definitions
 typedef enum {
+    NO_BOT, BOT
+} BOT_FLAG;
+
+typedef enum {
     LEFT,
     RIGHT,
     UP,

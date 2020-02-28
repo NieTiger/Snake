@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.10)
 project(snake C)
 
 set(CMAKE_C_STANDARD 11)
@@ -11,7 +11,9 @@ add_executable(snake
         types.h
         types.c
         utilities.c
-        utilities.h)
+        utilities.h
+        bot.c
+        bot.h)
 
 target_link_libraries(snake
         ncurses)

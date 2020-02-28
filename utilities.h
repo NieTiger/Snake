@@ -16,7 +16,7 @@ void detect_collision(game_t *game_state);
 void reset_game(game_t* game_state, pt_t* SCREEN_MAX, int start_len);
 
 void draw_score(game_t *game_state);
-void game_over(pt_t *SCREEN_MAX);
+void game_over(game_t *gs, pt_t *SCREEN_MAX);
 void rectangle(int y1, int x1, int y2, int x2);
 
 #endif // __UTILITIES_H__

@@ -15,11 +15,8 @@
 
 #define HELP "Classic Snake Game\nUsage: snake [options]\n\
   -l, --length <number>   Length of the snake to start with :)\n\
+  -b, --bot               Let a bot play snake!\n\
 "
-
-typedef enum {
-    NO_BOT, BOT
-} BOT_FLAG;
 
 int main(int argc, char** argv) {
 
@@ -106,7 +103,7 @@ int main(int argc, char** argv) {
 
         // if game is over, draw over screen
         if (game_state.over) {
-            game_over(&SCREEN_MAX);
+            game_over(&game_state, &SCREEN_MAX);
         } else {
             /* draw! */
             draw_snake_logo(&game_state, &SCREEN_MAX);
@@ -117,7 +114,6 @@ int main(int argc, char** argv) {
         }
         /*printf("broke after this!\n");*/
         /*return 0;*/
-
 
         /* update display */
         refresh();
@@ -155,15 +151,16 @@ int main(int argc, char** argv) {
             case RIGHT:
                 if (game_state.snake.dir != LEFT) game_state.snake.dir = RIGHT;
                 break;
-            case 'r':
-                // Restart
-                /* reset/construct game */
-                getmaxyx(stdscr, SCREEN_MAX.y, SCREEN_MAX.x);
-                update_border(&game_state, &SCREEN_MAX);
-                init_game(&game_state, _start_len, _game_pause);
-                break;
             default:
                 break;
+        }
+
+        if (c == 'r') {
+            // Restart
+            /* reset/construct game */
+            getmaxyx(stdscr, SCREEN_MAX.y, SCREEN_MAX.x);
+            update_border(&game_state, &SCREEN_MAX);
+            init_game(&game_state, _start_len, _game_pause);
         }
     }
 
