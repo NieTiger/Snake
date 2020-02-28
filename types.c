@@ -3,12 +3,13 @@
 #include "definitions.h"
 
 
-void init_game(game_t *game_state, int start_len, int game_pause) {
+void init_game(game_t *game_state, int start_len, int game_pause, int highscore) {
     /* game state constructor */
     game_state->over = false;
     game_state->level = 1;
     game_state->pause = game_pause;
     game_state->score = 0;
+    game_state->highscore = highscore;
 
     /* snake constructor */
     game_state->snake.dir = RIGHT;

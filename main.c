@@ -3,13 +3,17 @@
  * @github: http://github.com/haolinnie
  */
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include <time.h>
 
-#include <unistd.h> // Unix only
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <unistd.h>
+#endif
 
-#include <stdio.h>
 #include <ncurses.h>
-#include <string.h>
 
 #include "definitions.h"
 #include "types.h"
@@ -17,23 +21,59 @@
 #include "bot.h"
 
 #define HELP "Classic Snake Game\nUsage: snake [options]\n\
-  -l, --length <number>   Length of the snake to start with :)\n\
   -b, --bot               Let a bot play snake!\n\
+  -l, --length <number>   Length of the snake to start with \n\
+  -s, --score             Show current highscore \n\
 "
+
+char* score_file_name = "/.snake";
+
+int get_save_high_score(char* path, int score) {
+    int highscore = 0;
+
+    char buffer[100];                           // open file to read
+    /*check if file exists and read file*/
+    FILE* file_ptr = fopen(path, "r");
+    if (file_ptr != NULL) {                     // if file does exist
+        fgets(buffer, 100, file_ptr);           // read file to buffer
+        sscanf(buffer, "%d", &highscore); // save previous score
+        fclose(file_ptr);                       // close file
+    }
+
+
+    if (score > highscore) {
+        /* open file to write */
+        file_ptr = fopen(path, "w");   // open file to write
+        if (file_ptr != NULL) {
+            sprintf(buffer, "%d", score);     // put score in buffer
+            fputs(buffer, file_ptr);            // write buffer to file
+            fclose(file_ptr);                   // close file
+            highscore = score;
+        }
+    }
+    return highscore;
+}
+
 
 int main(int argc, char** argv) {
 
-    // seed random number generator
+    /*Get score file path*/
+    char* _PATH = getenv("HOME");
+    strcat(_PATH, score_file_name);
+
+    int highscore = get_save_high_score(_PATH, 0);
+
+    /*Seed random number generator*/
     time_t t;
     srand((unsigned) time(&t));
 
-    /* init var */
+    /* Init var */
     int c = 0; // stores user input
     int _start_len = START_LEN;
     int _game_pause = INIT_PAUSE;
     BOT_FLAG bot_flag = NO_BOT;
 
-    /* input parsing */
+    /* Input parsing */
     for (int i=1; i<argc; ++i) {
         if (strcmp(argv[i], "-h") == 0 ||
             // help
@@ -59,6 +99,11 @@ int main(int argc, char** argv) {
             // Using a bot to run :)
             bot_flag = BOT;
             _game_pause = 100;
+        } else if (strcmp(argv[i], "-s") == 0 ||
+                strcmp(argv[i], "--score") == 0) {
+            // Print score
+            printf("The highscore on this machine is %d. Beat that!\n", highscore);
+            return EXIT_SUCCESS;
         }
     }
 
@@ -79,7 +124,7 @@ int main(int argc, char** argv) {
     /* reset/construct game */
     getmaxyx(stdscr, SCREEN_MAX.y, SCREEN_MAX.x);
     update_border(&game_state, &SCREEN_MAX);
-    init_game(&game_state, _start_len, _game_pause);
+    init_game(&game_state, _start_len, _game_pause, highscore);
 
     /*
      * main loop
@@ -100,9 +145,14 @@ int main(int argc, char** argv) {
         // Check for game over conditions
         detect_collision(&game_state);
 
-        // if game is over, draw over screen
+        // If game over
         if (game_state.over) {
+            // Save highscore
+            get_save_high_score(_PATH, game_state.score);
+
+            // Draw game over screen
             game_over(&game_state, &SCREEN_MAX);
+
         } else {
             /* draw! */
             draw_snake_logo(&game_state, &SCREEN_MAX);
@@ -159,11 +209,12 @@ int main(int argc, char** argv) {
             /* reset/construct game */
             getmaxyx(stdscr, SCREEN_MAX.y, SCREEN_MAX.x);
             update_border(&game_state, &SCREEN_MAX);
-            init_game(&game_state, _start_len, _game_pause);
+            init_game(&game_state, _start_len, _game_pause, game_state.highscore);
         }
     }
 
     /* clean up */
+    get_save_high_score(_PATH, game_state.score);
     endwin();
     return EXIT_SUCCESS;
 }

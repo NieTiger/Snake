@@ -87,6 +87,11 @@ void detect_collision(game_t *gs) {
         ++(gs->snake.len); // increment snake length
         ++gs->score; // increment score
 
+        // Update highscore
+        if (gs->score > gs->highscore) {
+            gs->highscore = gs->score;
+        }
+
         // Update speed
         if (gs->score % 5 == 0) {
             gs->pause -= 10;
@@ -113,6 +118,10 @@ void draw_score(game_t *gs) {
     move(gs->border.y2+1, gs->border.x1);
     printw("Score: %1d", gs->score);
 
+    // Print highscore
+    move(gs->border.y2+2, gs->border.x1);
+    printw("High Score: %1d", gs->highscore);
+
     // Print length
     move(gs->border.y2+1, gs->border.x1+10);
     printw("Length: %1d", gs->snake.len);
@@ -125,7 +134,7 @@ void draw_score(game_t *gs) {
     /*move(gs->border.y2+2, gs->border.x1);*/
     /*printw("W: up | S: Down | A: Left | D: Right");*/
 
-    move(gs->border.y2+2, gs->border.x1);
+    move(gs->border.y2+3, gs->border.x1);
     printw("Press r to restart");
 
 }

@@ -35,12 +35,13 @@ typedef struct {
     int level;
     int pause;
     int score;
+    int highscore;
     snake_t snake;
     pt_t ball;
     square_t border;
 } game_t;
 
-void init_game(game_t *game_state, int start_len, int game_pause);
+void init_game(game_t *game_state, int start_len, int game_pause, int highscore);
 void update_border(game_t *game_state, pt_t *SCREEN_MAX);
 void initialise_colour_pairs();
 
