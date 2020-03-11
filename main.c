@@ -1,6 +1,6 @@
 /*
  * @Author: Tiger Nie
- * @github: http://github.com/haolinnie
+ * @github: http://github.com/tiega
  */
 #include <stdlib.h>
 #include <stdio.h>
