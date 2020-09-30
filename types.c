@@ -29,7 +29,8 @@ void update_border(game_t *game_state, pt_t *SCREEN_MAX) {
     game_state->border.x1 = (SCREEN_MAX->x/2) - GAME_MAX_DIM;
     game_state->border.x2 = (SCREEN_MAX->x/2) + GAME_MAX_DIM;
     game_state->border.y1 = (SCREEN_MAX->y/2) - GAME_MAX_DIM/2;
-    game_state->border.y2 = (SCREEN_MAX->y/2) + GAME_MAX_DIM/2;}
+    game_state->border.y2 = (SCREEN_MAX->y/2) + GAME_MAX_DIM/2;
+}
 
 // Colour init
 void initialise_colour_pairs() {

@@ -117,6 +117,7 @@ int main(int argc, char** argv) {
     noecho();       // don't display keypresses
     refresh();      // refresh the screen to empt
     keypad(stdscr, TRUE); // init keypad (arrow keys and more)
+    use_default_colors(); // Respect screen transparency rules
 
     /* init colour pairs */
     initialise_colour_pairs();
