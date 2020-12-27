@@ -20,33 +20,33 @@ void draw_border(game_t* gs) {
  */
 void draw_snake(game_t* gs) {
     attron(COLOR_PAIR(SNAKE_COLOUR));
-    for (int i=gs->snake.len-2; i>=0; --i) {
-        mvprintw(gs->snake.arr[i].y, gs->snake.arr[i].x, " ");
-        mvprintw(gs->snake.arr[i].y, gs->snake.arr[i].x+1, " ");
-        gs->snake.arr[i+1].y = gs->snake.arr[i].y;
-        gs->snake.arr[i+1].x = gs->snake.arr[i].x;
+    for (int i=gs->snake->len-2; i>=0; --i) {
+        mvprintw(gs->snake->arr[i].y, gs->snake->arr[i].x, " ");
+        mvprintw(gs->snake->arr[i].y, gs->snake->arr[i].x+1, " ");
+        gs->snake->arr[i+1].y = gs->snake->arr[i].y;
+        gs->snake->arr[i+1].x = gs->snake->arr[i].x;
     }
 
-    switch (gs->snake.dir) {
+    switch (gs->snake->dir) {
         case UP:
-            --(gs->snake.arr[0].y);
+            --(gs->snake->arr[0].y);
             break;
         case DOWN:
-            ++(gs->snake.arr[0].y);
+            ++(gs->snake->arr[0].y);
             break;
         case LEFT:
-            gs->snake.arr[0].x -= 2;
+            gs->snake->arr[0].x -= 2;
             break;
         case RIGHT:
-            gs->snake.arr[0].x += 2;
+            gs->snake->arr[0].x += 2;
             break;
     }
     attroff(COLOR_PAIR(SNAKE_COLOUR));
 
     // Draw snake head
     attron(COLOR_PAIR(SNAKE_COLOUR_HEAD));
-    mvaddch(gs->snake.arr[0].y, gs->snake.arr[0].x, ACS_BULLET);
-    mvaddch(gs->snake.arr[0].y, gs->snake.arr[0].x+1, ACS_BULLET);
+    mvaddch(gs->snake->arr[0].y, gs->snake->arr[0].x, ACS_BULLET);
+    mvaddch(gs->snake->arr[0].y, gs->snake->arr[0].x+1, ACS_BULLET);
     attroff(COLOR_PAIR(SNAKE_COLOUR_HEAD));
 }
 
@@ -57,7 +57,7 @@ void draw_ball(game_t* gs) {
         do {
             gs->ball.x = gs->border.x1 + 2 + rand() % ((gs->border.x2 - gs->border.x1)/2 - 1) * 2;
             gs->ball.y = gs->border.y1 + 1 + rand() % (gs->border.y2 - 1 - gs->border.y1);
-        } while (detect_self_collision(&gs->snake, gs->ball.x, gs->ball.y));
+        } while (detect_self_collision(gs->snake, gs->ball.x, gs->ball.y));
     }
 
     mvaddch(gs->ball.y, gs->ball.x, ACS_CKBOARD);
@@ -76,15 +76,15 @@ int detect_self_collision(snake_t* snake, int x, int y) {
 
 void detect_collision(game_t *gs) {
     // Get current snake head
-    int* snake_x = &(gs->snake.arr[0].x);
-    int* snake_y = &(gs->snake.arr[0].y);
+    int* snake_x = &(gs->snake->arr[0].x);
+    int* snake_y = &(gs->snake->arr[0].y);
 
     // Check for ball collision -- increment score
     // If scored, also update speed
     if (gs->ball.x == *snake_x &&
             gs->ball.y == *snake_y) {
         gs->ball.flag = 1; // Generate new ball
-        ++(gs->snake.len); // increment snake length
+        ++(gs->snake->len); // increment snake length
         ++gs->score; // increment score
 
         // Update highscore
@@ -106,7 +106,7 @@ void detect_collision(game_t *gs) {
     }
 
     // Check for self collision -- game over
-    if (detect_self_collision(&(gs->snake), *snake_x, *snake_y)) {
+    if (detect_self_collision(gs->snake, *snake_x, *snake_y)) {
         gs->over = true;
     }
 
@@ -124,7 +124,7 @@ void draw_score(game_t *gs) {
 
     // Print length
     move(gs->border.y2+1, gs->border.x1+10);
-    printw("Length: %1d", gs->snake.len);
+    printw("Length: %1d", gs->snake->len);
 
     // Print speed
     move(gs->border.y2+1, gs->border.x1+21);

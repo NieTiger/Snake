@@ -17,8 +17,8 @@ int _reverse(int dir) {
 }
 
 int bot_greedy(game_t* gs) {
-    // dirs_t curr_dir = gs->snake.dir;
-    pt_t snake_pos = gs->snake.arr[0];
+    // dirs_t curr_dir = gs->snake->dir;
+    pt_t snake_pos = gs->snake->arr[0];
     pt_t ball_pos = gs->ball;
 
     int dx = ball_pos.x - snake_pos.x;
@@ -72,7 +72,7 @@ int bot_greedy(game_t* gs) {
     }
 
     int opposite_dir = _reverse(predicted_dir);
-    if (detect_self_collision( &(gs->snake), pred_x, pred_y)) {
+    if (detect_self_collision(gs->snake, pred_x, pred_y)) {
         // naive prediction causes a self collision
         // go in the opposite direction
         return opposite_dir;

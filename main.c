@@ -123,13 +123,13 @@ int main(int argc, char** argv) {
     initialise_colour_pairs();
 
     /* declare game objects */
-    game_t game_state;
+    game_t* game_state = make_game();
     pt_t SCREEN_MAX;
 
     /* reset/construct game */
     getmaxyx(stdscr, SCREEN_MAX.y, SCREEN_MAX.x);
-    update_border(&game_state, &SCREEN_MAX);
-    init_game(&game_state, _start_len, _game_pause, highscore);
+    update_border(game_state, &SCREEN_MAX);
+    init_game(game_state, _start_len, _game_pause, highscore);
 
     /*
      * main loop
@@ -141,33 +141,31 @@ int main(int argc, char** argv) {
         erase();
 
         // set timeout
-        timeout(game_state.pause);
+        timeout(game_state->pause);
 
         /* store the max y and x coordinates */
         getmaxyx(stdscr, SCREEN_MAX.y, SCREEN_MAX.x);
-        update_border(&game_state, &SCREEN_MAX);
+        update_border(game_state, &SCREEN_MAX);
 
         // Check for game over conditions
-        detect_collision(&game_state);
+        detect_collision(game_state);
 
         // If game over
-        if (game_state.over) {
+        if (game_state->over) {
             // Save highscore
-            get_save_high_score(_PATH, game_state.score);
+            get_save_high_score(_PATH, game_state->score);
 
             // Draw game over screen
-            game_over(&game_state, &SCREEN_MAX);
+            game_over(game_state, &SCREEN_MAX);
 
         } else {
             /* draw! */
-            draw_snake_logo(&game_state, &SCREEN_MAX);
-            draw_border(&game_state);
-            draw_ball(&game_state);
-            draw_snake(&game_state);
-            draw_score(&game_state);
+            draw_snake_logo(game_state, &SCREEN_MAX);
+            draw_border(game_state);
+            draw_ball(game_state);
+            draw_snake(game_state);
+            draw_score(game_state);
         }
-        /*printf("broke after this!\n");*/
-        /*return 0;*/
 
         /* update display */
         refresh();
@@ -180,7 +178,7 @@ int main(int argc, char** argv) {
             /* Get used input */
             _control = c;
         } else if (bot_flag == BOT) {
-            _control = bot_greedy(&game_state);
+            _control = bot_greedy(game_state);
         }
 
         /* Move snake on screen */
@@ -188,22 +186,22 @@ int main(int argc, char** argv) {
             case 'w':
             case KEY_UP:
             case UP:
-                if (game_state.snake.dir != DOWN) game_state.snake.dir = UP;
+                if (game_state->snake->dir != DOWN) game_state->snake->dir = UP;
                 break;
             case 's':
             case KEY_DOWN:
             case DOWN:
-                if (game_state.snake.dir != UP) game_state.snake.dir = DOWN;
+                if (game_state->snake->dir != UP) game_state->snake->dir = DOWN;
                 break;
             case 'a':
             case KEY_LEFT:
             case LEFT:
-                if (game_state.snake.dir != RIGHT) game_state.snake.dir = LEFT;
+                if (game_state->snake->dir != RIGHT) game_state->snake->dir = LEFT;
                 break;
             case 'd':
             case KEY_RIGHT:
             case RIGHT:
-                if (game_state.snake.dir != LEFT) game_state.snake.dir = RIGHT;
+                if (game_state->snake->dir != LEFT) game_state->snake->dir = RIGHT;
                 break;
             default:
                 break;
@@ -213,13 +211,15 @@ int main(int argc, char** argv) {
             // Restart
             /* reset/construct game */
             getmaxyx(stdscr, SCREEN_MAX.y, SCREEN_MAX.x);
-            update_border(&game_state, &SCREEN_MAX);
-            init_game(&game_state, _start_len, _game_pause, game_state.highscore);
+            update_border(game_state, &SCREEN_MAX);
+            init_game(game_state, _start_len, _game_pause, game_state->highscore);
         }
     }
 
+    destroy_game(game_state);
+
     /* clean up */
-    get_save_high_score(_PATH, game_state.score);
+    get_save_high_score(_PATH, game_state->score);
     endwin();
     return EXIT_SUCCESS;
 }

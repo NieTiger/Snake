@@ -1,7 +1,18 @@
+#include <stdlib.h>
 #include <ncurses.h>
 #include "types.h"
 #include "definitions.h"
 
+game_t* make_game() {
+    game_t* game_ptr = malloc(sizeof(game_t));
+    game_ptr->snake = malloc(sizeof(snake_t));
+    return game_ptr;
+}
+
+void destroy_game(game_t* game_ptr) {
+    free(game_ptr->snake);
+    free(game_ptr);
+}
 
 void init_game(game_t *game_state, int start_len, int game_pause, int highscore) {
     /* game state constructor */
@@ -12,11 +23,11 @@ void init_game(game_t *game_state, int start_len, int game_pause, int highscore)
     game_state->highscore = highscore;
 
     /* snake constructor */
-    game_state->snake.dir = RIGHT;
-    game_state->snake.len = start_len;
+    game_state->snake->dir = RIGHT;
+    game_state->snake->len = start_len;
     for (int i=0; i<start_len; ++i) {
-        game_state->snake.arr[i].x = (game_state->border.x2+game_state->border.x1)/2 - i*2;
-        game_state->snake.arr[i].y = (game_state->border.y2+game_state->border.y1)/2;
+        game_state->snake->arr[i].x = (game_state->border.x2+game_state->border.x1)/2 - i*2;
+        game_state->snake->arr[i].y = (game_state->border.y2+game_state->border.y1)/2;
     }
 
     // init ball
