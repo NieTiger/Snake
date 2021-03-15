@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int bot_greedy(game_t* gs);
+int bot_greedy(game_t *gs);
 
 #endif // __BOT_H__
